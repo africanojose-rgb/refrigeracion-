@@ -1,0 +1,6 @@
+{
+  "name": "AFRICANO Workshop",
+  "description": "Sistema de gestión y cálculo de carga de gas refrigerante optimizado por IA con almacenamiento local.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
