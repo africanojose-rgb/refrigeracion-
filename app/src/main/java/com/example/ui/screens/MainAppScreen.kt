@@ -350,7 +350,7 @@ fun DashboardTab(viewModel: MainViewModel, history: List<CalculationRecord>) {
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.List,
+                                imageVector = Icons.Default.List,
                             contentDescription = "Specs",
                             tint = AccentOrange
                         )
@@ -723,7 +723,6 @@ fun CalculatorTab(viewModel: MainViewModel) {
                             expanded = showEquipmentDropdown,
                             onDismissRequest = { showEquipmentDropdown = false },
                             modifier = Modifier
-                                .fillMaxWidth(0.85f)
                                 .background(SurfaceContainerHigh)
                                 .border(1.dp, BorderColor, RoundedCornerShape(8.dp))
                         ) {
@@ -781,7 +780,6 @@ fun CalculatorTab(viewModel: MainViewModel) {
                             expanded = showGasDropdown,
                             onDismissRequest = { showGasDropdown = false },
                             modifier = Modifier
-                                .fillMaxWidth(0.85f)
                                 .background(SurfaceContainerHigh)
                                 .border(1.dp, BorderColor, RoundedCornerShape(8.dp))
                         ) {
@@ -1084,7 +1082,7 @@ fun ResultsTab(viewModel: MainViewModel) {
                             )
                         }
                         Spacer(modifier = Modifier.height(12.dp))
-                        Divider(color = BorderColor)
+                        HorizontalDivider(color = BorderColor)
                         Spacer(modifier = Modifier.height(12.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
@@ -1133,13 +1131,15 @@ fun ResultsTab(viewModel: MainViewModel) {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
+                            val lowPsi = RefrigerantPTData.pressureAtTemp(record.refrigerantType, record.evaporatorTemp).toInt()
+                            val highPsi = RefrigerantPTData.pressureAtTemp(record.refrigerantType, record.condensatorTemp).toInt()
                             Text(
-                                text = "Baja: 35 PSI",
+                                text = "Baja: $lowPsi PSI",
                                 color = OnSurfaceVariantColor,
                                 fontSize = 11.sp
                             )
                             Text(
-                                text = "Alta: 155 PSI",
+                                text = "Alta: $highPsi PSI",
                                 color = OnSurfaceVariantColor,
                                 fontSize = 11.sp
                             )
@@ -1239,12 +1239,7 @@ fun ResultsTab(viewModel: MainViewModel) {
                         }
 
                         // Table rows
-                        val rows = listOf(
-                            Triple("-10.0", "29.2", "Vapor"),
-                            Triple("-5.0", "35.4", "Vapor"),
-                            Triple("0.0", "42.5", "Saturado"),
-                            Triple("5.0", "50.8", "Saturado")
-                        )
+                        val rows = RefrigerantPTData.ptTableRows(record.refrigerantType)
 
                         rows.forEachIndexed { idx, row ->
                             Row(
@@ -1297,7 +1292,7 @@ fun ResultsTab(viewModel: MainViewModel) {
                 ) {
                     Button(
                         onClick = {
-                            Toast.makeText(context, "Informe de Carga Guardado Correctamente", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "El informe ya está guardado en la base de datos local", Toast.LENGTH_SHORT).show()
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = AccentOrange),
                         shape = RoundedCornerShape(8.dp),
@@ -1483,7 +1478,7 @@ fun SettingsTab(viewModel: MainViewModel, history: List<CalculationRecord>) {
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
-                Divider(color = BorderColor)
+                HorizontalDivider(color = BorderColor)
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Row(
@@ -1633,7 +1628,7 @@ fun SettingsTab(viewModel: MainViewModel, history: List<CalculationRecord>) {
                         }
                     }
                     if (index < specs.size - 1) {
-                        Divider(color = BorderColor.copy(alpha = 0.4f))
+                        HorizontalDivider(color = BorderColor.copy(alpha = 0.4f))
                     }
                 }
             }
@@ -1670,3 +1665,32 @@ data class RefrigerantSpec(
     val gwp: String,
     val safety: String
 )
+
+object RefrigerantPTData {
+    // Approximate pressure (PSI) at given temperatures for common refrigerants
+    private val ptTables = mapOf(
+        "r410a" to mapOf(-10.0 to 109.0, -5.0 to 122.0, 0.0 to 137.0, 5.0 to 153.0, 10.0 to 171.0, 35.0 to 310.0, 45.0 to 410.0, 55.0 to 530.0),
+        "r134a" to mapOf(-10.0 to 16.0, -5.0 to 22.0, 0.0 to 29.0, 5.0 to 37.0, 10.0 to 46.0, 35.0 to 120.0, 45.0 to 165.0, 55.0 to 225.0),
+        "r22" to mapOf(-10.0 to 37.0, -5.0 to 45.0, 0.0 to 54.0, 5.0 to 65.0, 10.0 to 77.0, 35.0 to 185.0, 45.0 to 245.0, 55.0 to 320.0),
+        "r404a" to mapOf(-10.0 to 56.0, -5.0 to 66.0, 0.0 to 77.0, 5.0 to 90.0, 10.0 to 104.0, 35.0 to 230.0, 45.0 to 310.0, 55.0 to 400.0),
+        "r600" to mapOf(-10.0 to 8.0, -5.0 to 12.0, 0.0 to 16.0, 5.0 to 21.0, 10.0 to 27.0, 35.0 to 72.0, 45.0 to 100.0, 55.0 to 136.0)
+    )
+
+    private val defaultTable = ptTables["r410a"]!!
+
+    fun pressureAtTemp(gasType: String, tempC: Double): Double {
+        val table = ptTables[gasType.lowercase()] ?: defaultTable
+        val closest = table.entries.minByOrNull { kotlin.math.abs(it.key - tempC) }
+        return closest?.value ?: 0.0
+    }
+
+    fun ptTableRows(gasType: String): List<Triple<String, String, String>> {
+        val table = ptTables[gasType.lowercase()] ?: defaultTable
+        return listOf(
+            Triple("-10.0", "${table[-10.0]?.toInt() ?: 0}", if (table[-10.0] != null) "Vapor" else "N/A"),
+            Triple("-5.0", "${table[-5.0]?.toInt() ?: 0}", if (table[-5.0] != null) "Vapor" else "N/A"),
+            Triple("0.0", "${table[0.0]?.toInt() ?: 0}", if (table[0.0] != null) "Saturado" else "N/A"),
+            Triple("5.0", "${table[5.0]?.toInt() ?: 0}", if (table[5.0] != null) "Saturado" else "N/A")
+        )
+    }
+}

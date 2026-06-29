@@ -24,7 +24,7 @@ class GeminiService {
         
         Por favor, responde en un formato claro y estructurado con:
         1. DIAGNÓSTICO TÉCNICO: Explica si el diferencial de temperaturas (salto térmico) es el adecuado para este tipo de gas y equipo.
-        2. EXPLICACIÓN FÍSICA: Detalla los puntos de de saturación aproximados (relación presión-temperatura).
+        2. EXPLICACIÓN FÍSICA: Detalla los puntos de saturación aproximados (relación presión-temperatura).
         3. RECOMENDACIONES DEL TÉCNICO: Proporciona 2 o 3 recomendaciones directas, breves e industriales (por ejemplo, verificar fugas, realizar vacío por X minutos, revisar válvula de expansión o limpieza de condensador).
         
         Mantén un tono profesional, técnico, directo y de confianza industrial. Responde en español.

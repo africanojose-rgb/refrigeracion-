@@ -1,21 +1,37 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# AFRICANO Workshop
 
-# Run and deploy your AI Studio app
+Aplicación Android para **cálculo de carga de gas refrigerante** en equipos HVAC/R.
+Usa **Gemini API** para diagnóstico técnico experto y recomendaciones en tiempo real.
 
-This contains everything you need to run your app locally.
+## Características
 
-View your app in AI Studio: https://ai.studio/apps/433c2788-7122-4e97-9749-f6e29a12c8f9
+- **Cálculo termodinámico** — Estima gramos de refrigerante según tipo de equipo, gas y temperaturas
+- **IA Gemini** — Diagnóstico técnico, análisis presión-temperatura y recomendaciones industriales
+- **Historial local** — Almacenamiento en Room DB con consultas y eliminación
+- **Interfaz Material 3** — UI moderna con 4 pestañas: Dashboard, Calculadora, Resultados, Config
 
-## Run Locally
+## Requisitos
 
-**Prerequisites:**  [Android Studio](https://developer.android.com/studio)
+- Android 7.0+ (API 24)
+- [Gemini API Key](https://aistudio.google.com/)
 
+## Configuración
 
-1. Open Android Studio
-2. Select **Open** and choose the directory containing this project
-3. Allow Android Studio to fix any incompatibilities as it imports the project.
-4. Create a file named `.env` in the project directory and set `GEMINI_API_KEY` in that file to your Gemini API key (see `.env.example` for an example)
-5. Remove this line from the app's `build.gradle.kts` file: `signingConfig = signingConfigs.getByName("debugConfig")`
-6. Run the app on an emulator or physical device
+1. Clona el repositorio
+2. Abre en **Android Studio**
+3. Crea un archivo `.env` en la raíz con tu API key:
+   ```
+   GEMINI_API_KEY=tu_api_key_aqui
+   ```
+4. Compila y ejecuta
+
+## Tecnologías
+
+| Componente | Tecnología |
+|------------|------------|
+| Lenguaje | Kotlin 2.2 |
+| UI | Jetpack Compose + Material 3 |
+| IA | Gemini API 2.0 Flash |
+| Persistencia | Room (SQLite) |
+| Networking | Retrofit + OkHttp + Moshi |
+| Build | Gradle 9.6 + AGP 9.1 |
